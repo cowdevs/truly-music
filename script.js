@@ -533,12 +533,12 @@ function playTrackAt(index) {
 
     ensurePlayer(track.id);
     updateNowPlayingUI(track);
-    updateMediaSessionMetadata(track);
+    updateMediaSessionMetadata(track, 'https://i.ytimg.com/vi/' + track.id + '/hqdefault.jpg');
     highlightQueueItem(index);
 
     var myToken = ++thumbLoadToken;
     bestThumbnailUrl(track.id, function (src) {
-        if (myToken !== thumbLoadToken) return; // a newer track has since loaded — drop this stale result
+        if (myToken !== thumbLoadToken) return;
         if (!src) {
             displayPlaceholder.textContent = track.title;
             return;
@@ -546,30 +546,13 @@ function playTrackAt(index) {
         albumArt.src = src;
         albumArt.style.display = '';
         displayPlaceholder.style.display = 'none';
-        navigator.mediaSession.metadata.artwork = [{src: src, type: 'image/jpeg'}];
+        updateMediaSessionMetadata(track, src);
     });
 
     curTimeEl.textContent = '0:00';
     durTimeEl.textContent = '0:00';
     seekInput.value = 0;
     setSliderFill(seekInput, 0);
-
-    scheduleWatchdog();
-}
-
-// Diagnoses the two silent-failure modes: the player never responding at
-// all (usually an ad blocker or firewall blocking youtube.com) versus the
-// player responding fine but playback not starting (the browser's
-// autoplay-with-sound policy blocking it — normal, just needs one click).
-function scheduleWatchdog() {
-    var checkTime = Date.now();
-    clearTimeout(watchdogTimer);
-    watchdogTimer = setTimeout(function () {
-        if (state.currentIndex < 0) return;
-        if (lastPlayerSignal < checkTime) {
-            showToast('The YouTube player hasn\u2019t responded. An ad blocker or firewall may be blocking youtube.com \u2014 try disabling it for this page, then reload.', 7000);
-        }
-    }, 4000);
 }
 
 function playNext(auto) {
