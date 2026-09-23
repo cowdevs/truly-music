@@ -1,2 +1,2 @@
-# MusicFY
-A Fisher-Yates shuffler for Youtube playlists.
+# truly music
+A YouTube Music player that shuffles your playlists properly.
