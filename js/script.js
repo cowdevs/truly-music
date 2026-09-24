@@ -1,7 +1,6 @@
 'use strict';
 
 var state = {
-    apiKey: localStorage.getItem('ytsp_apiKey') || '',
     tracks: [],
     queue: [],
     currentIndex: -1,
@@ -22,7 +21,6 @@ var thumbLoadToken = 0;
 var setupScreen = document.getElementById('setup-screen');
 var playerScreen = document.getElementById('player-screen');
 
-var apiKeyInput = document.getElementById('api-key-input');
 var playlistInput = document.getElementById('playlist-input');
 var loadPlaylistBtn = document.getElementById('load-playlist-btn');
 var setupError = document.getElementById('setup-error');
@@ -259,12 +257,11 @@ function renderSavedPlaylists() {
 
 // YOUTUBE DATA API STUFF
 
+const API_PROXY_BASE = 'https://truly-music-proxy.cowdevs.workers.dev/';
+
 function apiRequest(path, params) {
-    var url = new URL('https://www.googleapis.com/youtube/v3/' + path);
-    Object.keys(params).forEach(function (k) {
-        url.searchParams.set(k, params[k]);
-    });
-    url.searchParams.set('key', state.apiKey);
+    var url = new URL(API_PROXY_BASE + path);
+    Object.keys(params).forEach(function (k) { url.searchParams.set(k, params[k]); });
     return fetch(url.toString()).then(function (res) {
         return res.json().then(function (data) {
             if (!res.ok) {
@@ -336,20 +333,12 @@ function clearSetupError() {
 
 function beginLoadPlaylist(forceRefresh) {
     clearSetupError();
-    var apiKey = apiKeyInput.value.trim();
     var playlistId = extractPlaylistId(playlistInput.value);
 
-    if (!apiKey) {
-        showSetupError('Enter your YouTube Data API v3 key first.');
-        return;
-    }
     if (!playlistId) {
         showSetupError('Paste a playlist URL (with a "list=" parameter) or a raw playlist ID.');
         return;
     }
-
-    state.apiKey = apiKey;
-    localStorage.setItem('ytsp_apiKey', apiKey);
 
     var cached = !forceRefresh && getCachedPlaylist(playlistId);
     if (cached) {
@@ -822,9 +811,6 @@ function closeDrawer() {
 loadPlaylistBtn.addEventListener('click', function () {
     beginLoadPlaylist(false);
 });
-apiKeyInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') beginLoadPlaylist();
-});
 playlistInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') beginLoadPlaylist();
 });
@@ -897,8 +883,6 @@ document.addEventListener('keydown', function (e) {
 function init() {
     setupSilentAudio();
     loadYTScript();
-
-    if (state.apiKey) apiKeyInput.value = state.apiKey;
 
     var savedVolume = localStorage.getItem('ytsp_volume');
     if (savedVolume != null) volumeInput.value = savedVolume;
