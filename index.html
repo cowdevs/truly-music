@@ -11,8 +11,8 @@
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"/>
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@24,300,0..1"/>
-    <link rel="stylesheet" href="./css/style.css"/>
-    <script src="./js/script.js" defer></script>
+    <link rel="stylesheet" href="./style.css"/>
+    <script src="./script.js" defer></script>
 </head>
 <body>
 
@@ -63,12 +63,7 @@
     </div>
 
     <div class="display-frame">
-        <img id="album-art" alt="" src="" style="display:none;" draggable="false">
-        <div id="display-placeholder" class="display-placeholder">Loading track…</div>
-        <button id="display-overlay" class="display-overlay" aria-label="Play or pause">
-            <span id="overlay-icon-play" class="material-symbols-outlined filled">play_arrow</span>
-            <span id="overlay-icon-pause" class="material-symbols-outlined filled" style="display:none;">pause</span>
-        </button>
+        <div id="yt-player"></div>
     </div>
 
     <div class="track-info">

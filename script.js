@@ -30,11 +30,6 @@ var savedSection = document.getElementById('saved-section');
 var savedList = document.getElementById('saved-list');
 
 var powerDot = document.getElementById('power-dot');
-var albumArt = document.getElementById('album-art');
-var displayPlaceholder = document.getElementById('display-placeholder');
-var displayOverlay = document.getElementById('display-overlay');
-var overlayIconPlay = document.getElementById('overlay-icon-play');
-var overlayIconPause = document.getElementById('overlay-icon-pause');
 var trackTitleEl = document.getElementById('track-title');
 var trackChannelEl = document.getElementById('track-channel');
 
@@ -416,10 +411,6 @@ window.onYouTubeIframeAPIReady = function () {
 
 function initPlayer(videoId) {
     var playerVars = {autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, playsinline: 1, rel: 0};
-    // Passing an origin only helps if it's the page's real http(s) origin —
-    // a wrong one (e.g. the literal string "null" you get from a file://
-    // page) breaks the postMessage handshake entirely and the player goes
-    // silent instead of reporting an error, so only send it when it's valid.
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
         playerVars.origin = window.location.origin;
     }
@@ -428,6 +419,7 @@ function initPlayer(videoId) {
         width: '320',
         videoId: videoId,
         playerVars: playerVars,
+        isPLaying: true,
         events: {
             onReady: onPlayerReady,
             onStateChange: onPlayerStateChange,
@@ -454,9 +446,6 @@ function onPlayerReady() {
     state.player.setVolume(parseInt(volumeInput.value, 10));
     setupMediaSessionHandlers();
     startProgressTimer();
-    // Belt-and-braces: playerVars.autoplay doesn't always take effect
-    // (browsers can silently block autoplay-with-sound), so make an
-    // explicit play call too. Harmless if it's already playing.
     state.player.playVideo();
 }
 
@@ -467,11 +456,8 @@ function onPlayerStateChange(e) {
         state.isPlaying = true;
         iconPlay.style.display = 'none';
         iconPause.style.display = '';
-        overlayIconPlay.style.display = 'none';
-        overlayIconPause.style.display = '';
         powerDot.classList.add('playing');
-        silentAudio.play().catch(function () {
-        });
+        silentAudio.play().catch(function () {});
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         startProgressTimer();
         updateWindowTitle();
@@ -479,8 +465,6 @@ function onPlayerStateChange(e) {
         state.isPlaying = false;
         iconPlay.style.display = '';
         iconPause.style.display = 'none';
-        overlayIconPlay.style.display = '';
-        overlayIconPause.style.display = 'none';
         powerDot.classList.remove('playing');
         silentAudio.pause();
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
@@ -492,7 +476,7 @@ function onPlayerStateChange(e) {
 function onPlayerError(e) {
     lastPlayerSignal = Date.now();
     console.warn('YouTube player error code:', e && e.data, 'for video', state.queue[state.currentIndex] && state.queue[state.currentIndex].id);
-    showToast('Skipping a track that can\u2019t be embedded here…');
+    showToast('Track unavailable. Skipping...');
     var removedIndex = state.currentIndex;
     state.queue.splice(removedIndex, 1);
     renderQueue();
@@ -516,26 +500,17 @@ function playTrackAt(index) {
     state.currentIndex = index;
     var track = state.queue[index];
 
-    displayPlaceholder.textContent = 'Loading track…';
-    displayPlaceholder.style.display = '';
-    albumArt.style.display = 'none';
-
     ensurePlayer(track.id);
     updateNowPlayingUI(track);
-    updateMediaSessionMetadata(track, 'https://i.ytimg.com/vi/' + track.id + '/hqdefault.jpg');
+    updateMediaSessionMetadata(track);
     highlightQueueItem(index);
 
     var myToken = ++thumbLoadToken;
     bestThumbnailUrl(track.id, function (src) {
-        if (myToken !== thumbLoadToken) return;
-        if (!src) {
-            displayPlaceholder.textContent = track.title;
-            return;
+        if (myToken !== thumbLoadToken || !src) return;
+        if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
+            navigator.mediaSession.metadata.artwork = [{src: src, type: 'image/jpeg'}];
         }
-        albumArt.src = src;
-        albumArt.style.display = '';
-        displayPlaceholder.style.display = 'none';
-        updateMediaSessionMetadata(track, src);
     });
 
     curTimeEl.textContent = '0:00';
@@ -733,6 +708,7 @@ function setupMediaSessionHandlers() {
     if (!('mediaSession' in navigator)) return;
     try {
         navigator.mediaSession.setActionHandler('play', function () {
+            silentAudio.play().catch(function () {});
             state.player && state.player.playVideo();
         });
         navigator.mediaSession.setActionHandler('pause', function () {
@@ -754,7 +730,7 @@ function setupMediaSessionHandlers() {
     }
 }
 
-function updateMediaSessionMetadata(track) {
+function updateMediaSessionMetadata(track, src) {
     if (!('mediaSession' in navigator)) return;
     navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title,
@@ -820,8 +796,6 @@ queueBtn.addEventListener('click', openDrawer);
 drawerCloseBtn.addEventListener('click', closeDrawer);
 drawerBackdrop.addEventListener('click', closeDrawer);
 reshuffleBtn.addEventListener('click', reshuffleQueue);
-
-displayOverlay.addEventListener('click', togglePlay);
 
 playPauseBtn.addEventListener('click', togglePlay);
 prevBtn.addEventListener('click', playPrev);
