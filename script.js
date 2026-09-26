@@ -77,13 +77,6 @@ function shuffle(arr) {
     return a;
 }
 
-function isMobile() {
-    return /Android|iPad|iPhone|iPod|Mobile|Windows Phone/i.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-}
-
-var isMobileDevice = isMobile();
-
 function formatTime(sec) {
     if (!isFinite(sec) || sec < 0) sec = 0;
     var m = Math.floor(sec / 60);
@@ -464,7 +457,7 @@ function onPlayerStateChange(e) {
         iconPlay.style.display = 'none';
         iconPause.style.display = '';
         powerDot.classList.add('playing');
-        if (!isMobileDevice) silentAudio.play().catch(function () {});
+        silentAudio.play().catch(function () {});
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         startProgressTimer();
         updateWindowTitle();
@@ -473,7 +466,7 @@ function onPlayerStateChange(e) {
         iconPlay.style.display = '';
         iconPause.style.display = 'none';
         powerDot.classList.remove('playing');
-        if (!isMobileDevice) silentAudio.pause();
+        silentAudio.pause();
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
     } else if (e.data === S.ENDED) {
         playNext(true);
@@ -715,7 +708,7 @@ function setupMediaSessionHandlers() {
     if (!('mediaSession' in navigator)) return;
     try {
         navigator.mediaSession.setActionHandler('play', function () {
-            if (!isMobileDevice) silentAudio.play().catch(function () {});
+            silentAudio.play().catch(function () {});
             state.player && state.player.playVideo();
         });
         navigator.mediaSession.setActionHandler('pause', function () {
@@ -862,7 +855,7 @@ document.addEventListener('keydown', function (e) {
 // INIT
 
 function init() {
-    if (!isMobileDevice) setupSilentAudio();
+    setupSilentAudio();
     loadYTScript();
 
     var savedVolume = localStorage.getItem('ytsp_volume');
