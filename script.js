@@ -256,7 +256,9 @@ const API_PROXY_BASE = 'https://truly-music-proxy.cowdevs.workers.dev/';
 
 function apiRequest(path, params) {
     var url = new URL(API_PROXY_BASE + path);
-    Object.keys(params).forEach(function (k) { url.searchParams.set(k, params[k]); });
+    Object.keys(params).forEach(function (k) {
+        url.searchParams.set(k, params[k]);
+    });
     return fetch(url.toString()).then(function (res) {
         return res.json().then(function (data) {
             if (!res.ok) {
@@ -390,8 +392,8 @@ function showSetupScreen() {
     playerScreen.classList.add('hidden');
     setupScreen.classList.remove('hidden');
     if (state.player && state.player.pauseVideo) state.player.pauseVideo();
+    closeDrawer();
 }
-
 
 // YOUTUEB IFRAME API STUFF
 
@@ -415,11 +417,11 @@ function initPlayer(videoId) {
         playerVars.origin = window.location.origin;
     }
     state.player = new YT.Player('yt-player', {
-        height: '180',
-        width: '320',
+        // height: '180',
+        // width: '320',
         videoId: videoId,
         playerVars: playerVars,
-        isPLaying: true,
+        isPlaying: true,
         events: {
             onReady: onPlayerReady,
             onStateChange: onPlayerStateChange,
@@ -457,7 +459,8 @@ function onPlayerStateChange(e) {
         iconPlay.style.display = 'none';
         iconPause.style.display = '';
         powerDot.classList.add('playing');
-        silentAudio.play().catch(function () {});
+        silentAudio.play().catch(function () {
+        });
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         startProgressTimer();
         updateWindowTitle();
@@ -740,7 +743,7 @@ function updateMediaSessionMetadata(track, src) {
 
 function setupSilentAudio() {
     var sampleRate = 8000;
-    var seconds = 2;
+    var seconds = 10;
     var numSamples = sampleRate * seconds;
     var buffer = new ArrayBuffer(44 + numSamples);
     var view = new DataView(buffer);

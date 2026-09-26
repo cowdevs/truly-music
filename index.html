@@ -103,19 +103,18 @@
         <span class="material-symbols-outlined">volume_up</span>
         <input id="volume-input" type="range" min="0" max="100" value="80" aria-label="Volume">
     </div>
-</div>
 
-<!-- ============ QUEUE DRAWER ============ -->
-<div id="drawer-backdrop" class="drawer-backdrop"></div>
-<div id="queue-drawer" class="drawer">
-    <div class="drawer-header">
-        <h2>Up next</h2>
-        <button id="drawer-close-btn" class="icon-btn" aria-label="Close queue">
-            <span class="material-symbols-outlined">close</span>
-        </button>
+    <!-- ============ QUEUE DRAWER ============ -->
+    <div id="drawer-backdrop" class="drawer-backdrop"></div>
+    <div id="queue-drawer" class="drawer">
+        <div class="drawer-header">
+            <h2>Up next</h2>
+            <button id="drawer-close-btn" class="icon-btn" aria-label="Close queue">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <ul id="queue-list" class="queue-list"></ul>
     </div>
-
-    <ul id="queue-list" class="queue-list"></ul>
 </div>
 
 <div id="toast" class="toast"></div>
