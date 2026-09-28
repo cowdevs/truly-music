@@ -412,7 +412,18 @@ window.onYouTubeIframeAPIReady = function () {
 };
 
 function initPlayer(videoId) {
-    var playerVars = {autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, playsinline: 1, rel: 0};
+    var playerVars = {
+        autoplay: 1,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        rel: 0,
+        cc_load_policy: 0,
+        iv_load_policy: 3,
+        hl: 'en'
+    };
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
         playerVars.origin = window.location.origin;
     }
@@ -458,6 +469,7 @@ function onPlayerStateChange(e) {
         state.isPlaying = true;
         iconPlay.style.display = 'none';
         iconPause.style.display = '';
+        state.player.setOption('captions', 'track', {});
         powerDot.classList.add('playing');
         silentAudio.play().catch(function () {
         });

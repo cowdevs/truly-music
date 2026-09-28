@@ -10,4 +10,4 @@ A browser-based YouTube Music player that shuffles your playlists properly.
 - Lightweight and easy to use
 - **Mobile-friendly**, with background play!!!
 
-*Feel like a YouTube Premium user, without paying a dime!*
+*Feel like a Premium user, without paying a dime!*
