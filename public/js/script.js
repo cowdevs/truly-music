@@ -412,7 +412,18 @@ window.onYouTubeIframeAPIReady = function () {
 };
 
 function initPlayer(videoId) {
-    var playerVars = {autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, playsinline: 1, rel: 0};
+    var playerVars = {
+        autoplay: 1,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        rel: 0,
+        cc_load_policy: 0,
+        iv_load_policy: 3,
+        hl: 'en'
+    };
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
         playerVars.origin = window.location.origin;
     }
@@ -458,12 +469,12 @@ function onPlayerStateChange(e) {
         state.isPlaying = true;
         iconPlay.style.display = 'none';
         iconPause.style.display = '';
+        state.player.setOption('captions', 'track', {});
         powerDot.classList.add('playing');
         silentAudio.play().catch(function () {
         });
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         startProgressTimer();
-        updateWindowTitle();
     } else if (e.data === S.PAUSED) {
         state.isPlaying = false;
         iconPlay.style.display = '';
@@ -595,13 +606,6 @@ function updateNowPlayingUI(track) {
     trackChannelEl.href = track.channelId
         ? 'https://music.youtube.com/channel/' + track.channelId
         : 'https://music.youtube.com/search?q=' + encodeURIComponent(track.channel);
-}
-
-function updateWindowTitle() {
-    if (state.currentIndex >= 0 && state.queue[state.currentIndex]) {
-        var t = state.queue[state.currentIndex];
-        document.title = t.channel + ' - ' + t.title;
-    }
 }
 
 function highlightQueueItem(index) {
@@ -778,11 +782,20 @@ function setupSilentAudio() {
 function openDrawer() {
     queueDrawer.classList.add('open');
     drawerBackdrop.classList.add('open');
+    queueBtn.classList.add('active');
+    playerScreen.classList.add('queue-open');
 }
 
 function closeDrawer() {
     queueDrawer.classList.remove('open');
     drawerBackdrop.classList.remove('open');
+    queueBtn.classList.remove('active');
+    playerScreen.classList.remove('queue-open');
+}
+
+function toggleDrawer() {
+    if (queueDrawer.classList.contains('open')) closeDrawer();
+    else openDrawer();
 }
 
 
@@ -796,7 +809,7 @@ playlistInput.addEventListener('keydown', function (e) {
 });
 
 homeBtn.addEventListener('click', showSetupScreen);
-queueBtn.addEventListener('click', openDrawer);
+queueBtn.addEventListener('click', toggleDrawer);
 drawerCloseBtn.addEventListener('click', closeDrawer);
 drawerBackdrop.addEventListener('click', closeDrawer);
 reshuffleBtn.addEventListener('click', reshuffleQueue);
