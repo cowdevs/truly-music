@@ -256,7 +256,9 @@ const API_PROXY_BASE = 'https://truly-music-proxy.cowdevs.workers.dev/';
 
 function apiRequest(path, params) {
     var url = new URL(API_PROXY_BASE + path);
-    Object.keys(params).forEach(function (k) { url.searchParams.set(k, params[k]); });
+    Object.keys(params).forEach(function (k) {
+        url.searchParams.set(k, params[k]);
+    });
     return fetch(url.toString()).then(function (res) {
         return res.json().then(function (data) {
             if (!res.ok) {
@@ -390,8 +392,8 @@ function showSetupScreen() {
     playerScreen.classList.add('hidden');
     setupScreen.classList.remove('hidden');
     if (state.player && state.player.pauseVideo) state.player.pauseVideo();
+    closeDrawer();
 }
-
 
 // YOUTUEB IFRAME API STUFF
 
@@ -457,7 +459,8 @@ function onPlayerStateChange(e) {
         iconPlay.style.display = 'none';
         iconPause.style.display = '';
         powerDot.classList.add('playing');
-        silentAudio.play().catch(function () {});
+        silentAudio.play().catch(function () {
+        });
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         startProgressTimer();
         updateWindowTitle();
