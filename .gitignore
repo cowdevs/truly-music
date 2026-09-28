@@ -1,7 +1,13 @@
-/.idea/
+.env
+.env.*
+!.env.example
 
 .dev.vars
-.env
+.dev.vars.*
 
 node_modules/
 .wrangler/
+.firebase/
+.idea/
+
+.DS_Store

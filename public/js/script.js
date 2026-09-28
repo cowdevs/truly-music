@@ -711,7 +711,8 @@ function setupMediaSessionHandlers() {
     if (!('mediaSession' in navigator)) return;
     try {
         navigator.mediaSession.setActionHandler('play', function () {
-            silentAudio.play().catch(function () {});
+            silentAudio.play().catch(function () {
+            });
             state.player && state.player.playVideo();
         });
         navigator.mediaSession.setActionHandler('pause', function () {

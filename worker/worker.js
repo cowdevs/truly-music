@@ -1,4 +1,6 @@
-const PRODUCTION_ORIGIN = 'https://cowdevs.github.io';
+// IF I EVER CHANGE THE ORIGIN REMEMBER TO RUN npx wrangler deploy!!!
+
+const PRODUCTION_ORIGIN = 'https://truly-music.web.app';
 
 function isAllowedOrigin(origin) {
     if (origin === PRODUCTION_ORIGIN) return true;
