@@ -17,6 +17,8 @@
     --radius-lg: 22px;
     --radius-md: 12px;
     --radius-sm: 6px;
+    --drawer-w: 320px;
+    --drawer-gap: 14px;
 }
 
 * {
@@ -428,53 +430,94 @@ input[type="range"]::-moz-range-track {
     pointer-events: auto;
 }
 
-.drawer {
+.drawer-slot {
+    --drawer-w: 320px;
+    --drawer-gap: 14px;
     position: absolute;
     top: 0;
-    left: 100%;
-    margin-left: 14px;
+    left: calc(100% + 1px);
     height: 100%;
-    width: min(320px, 90vw);
+    width: calc(var(--drawer-w) + var(--drawer-gap));
+    clip-path: inset(-80px -80px -80px 0);
+}
+
+.drawer {
+    width: var(--drawer-w);
+    height: 100%;
+    margin-left: var(--drawer-gap);
     background: var(--panel-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
-    z-index: 21;
     display: flex;
     flex-direction: column;
-    transform-origin: left center;
-    transform: translateX(-24px) scale(0.96);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform .38s cubic-bezier(0.22, 1, 0.36, 1), opacity .28s ease;
+    transform: translateX(calc(-100% - var(--drawer-gap)));
+    visibility: hidden;
+    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear .5s;
 }
 
 .drawer.open {
-    transform: translateX(0) scale(1);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
 }
 
-@media (max-width: 899px) {
+.icon-btn.active {
+    color: var(--accent);
+    background: var(--panel-2);
+}
+
+@media (min-width: 900px) {
+    .drawer-backdrop {
+        display: none;
+    }
+
+    #drawer-close-btn {
+        display: none;
+    }
+
+    #player-screen {
+        transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #player-screen.queue-open {
+        transform: translateX(calc((var(--drawer-w) + var(--drawer-gap)) / -2));
+    }
+}
+
+@media (max-width: 899.98px) {
+    .drawer-slot {
+        display: contents;
+    }
+
     .drawer {
         position: fixed;
-        top: auto;
         left: 0;
         right: 0;
         bottom: 0;
         margin-left: 0;
+        width: 100%;
         height: min(70vh, 620px);
         max-height: 88vh;
-        width: 100%;
         border-radius: 18px 18px 0 0;
         border-bottom: none;
         box-shadow: 0 -24px 50px -12px rgba(0, 0, 0, 0.55);
-        transform-origin: center bottom;
-        transform: translateY(100%) scale(1);
+        z-index: 21;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: transform .38s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity .28s ease,
+        visibility 0s linear .38s;
     }
 
     .drawer.open {
-        transform: translateY(0) scale(1);
+        opacity: 1;
+        transform: translateY(0);
+        transition: transform .38s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity .28s ease,
+        visibility 0s linear 0s;
     }
 }
 

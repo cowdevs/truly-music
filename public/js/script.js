@@ -778,11 +778,20 @@ function setupSilentAudio() {
 function openDrawer() {
     queueDrawer.classList.add('open');
     drawerBackdrop.classList.add('open');
+    queueBtn.classList.add('active');
+    playerScreen.classList.add('queue-open');
 }
 
 function closeDrawer() {
     queueDrawer.classList.remove('open');
     drawerBackdrop.classList.remove('open');
+    queueBtn.classList.remove('active');
+    playerScreen.classList.remove('queue-open');
+}
+
+function toggleDrawer() {
+    if (queueDrawer.classList.contains('open')) closeDrawer();
+    else openDrawer();
 }
 
 
@@ -796,7 +805,7 @@ playlistInput.addEventListener('keydown', function (e) {
 });
 
 homeBtn.addEventListener('click', showSetupScreen);
-queueBtn.addEventListener('click', openDrawer);
+queueBtn.addEventListener('click', toggleDrawer);
 drawerCloseBtn.addEventListener('click', closeDrawer);
 drawerBackdrop.addEventListener('click', closeDrawer);
 reshuffleBtn.addEventListener('click', reshuffleQueue);
