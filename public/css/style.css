@@ -18,7 +18,7 @@
     --radius-md: 12px;
     --radius-sm: 6px;
     --drawer-w: 320px;
-    --drawer-gap: 14px;
+    --drawer-gap: 16px;
 }
 
 * {
@@ -413,6 +413,45 @@ input[type="range"]::-moz-range-track {
     transform: translateX(-50%) translateY(0);
 }
 
+.github-link {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--panel);
+    color: var(--text-dim);
+    transition: color .15s, border-color .15s, background .15s;
+    z-index: 10;
+}
+
+.github-link:hover {
+    color: var(--text);
+    border-color: var(--accent-dim);
+    background: var(--panel-2);
+}
+
+.github-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.github-link img {
+    width: 24px;
+    height: 24px;
+    opacity: .7;
+    transition: opacity .15s;
+}
+
+.github-link:hover img {
+    opacity: 1;
+}
+
 /* ---------- queue drawer ---------- */
 
 .drawer-backdrop {
@@ -431,8 +470,6 @@ input[type="range"]::-moz-range-track {
 }
 
 .drawer-slot {
-    --drawer-w: 320px;
-    --drawer-gap: 14px;
     position: absolute;
     top: 0;
     left: calc(100% + 1px);
@@ -451,17 +488,17 @@ input[type="range"]::-moz-range-track {
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
+    opacity: 0;
     transform: translateX(calc(-100% - var(--drawer-gap)));
     visibility: hidden;
-    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1),
-    visibility 0s linear .5s;
+    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1), opacity .28s ease, visibility 0s linear .5s;
 }
 
 .drawer.open {
+    opacity: 1;
     transform: translateX(0);
     visibility: visible;
-    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1),
-    visibility 0s linear 0s;
+    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1), opacity .28s ease, visibility 0s linear 0s;
 }
 
 .icon-btn.active {
@@ -580,6 +617,25 @@ input[type="range"]::-moz-range-track {
     padding: 6px 0;
     overflow-y: auto;
     flex: 1;
+    scrollbar-color: #77747e var(--panel-2);
+    scrollbar-width: thin;
+}
+
+.queue-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.queue-list::-webkit-scrollbar-track {
+    background: var(--panel-2);
+}
+
+.queue-list::-webkit-scrollbar-thumb {
+    background: #77747e;
+    border-radius: 999px;
+}
+
+.queue-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dim);
 }
 
 .queue-item {
