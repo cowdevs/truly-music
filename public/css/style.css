@@ -14,6 +14,12 @@
     --danger: #d16a63;
     --sans: 'Manrope', system-ui, -apple-system, sans-serif;
     --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --text-sm: 0.75rem;
+    --text-md: 0.875rem;
+    --text-lg: 1.125rem;
+    --icon-sm: 1rem;
+    --icon-md: 1.25rem;
+    --icon-lg: 1.5rem;
     --radius-lg: 22px;
     --radius-md: 12px;
     --radius-sm: 6px;
@@ -70,7 +76,9 @@ input:focus-visible,
 span.material-symbols-outlined {
     -webkit-user-select: none;
     user-select: none;
-    font-size: inherit;
+    font-size: var(--icon-md);
+    line-height: 1;
+    font-weight: 400;
     font-variation-settings: 'FILL' 0, 'wght' 300, 'opsz' 24;
 }
 
@@ -82,7 +90,7 @@ span.material-symbols-outlined.filled {
 
 .device-panel {
     width: min(420px, 100%);
-    background: linear-gradient(180deg, var(--panel-raised) 0%, var(--panel) 14px, var(--panel) 100%);
+    background: var(--panel);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 22px;
@@ -129,7 +137,7 @@ span.material-symbols-outlined.filled {
 .wordmark {
     -webkit-user-select: none;
     user-select: none;
-    font-size: 13px;
+    font-size: var(--text-md);
     letter-spacing: 0.04em;
     color: var(--text-dim);
     font-weight: 600;
@@ -141,8 +149,8 @@ span.material-symbols-outlined.filled {
 }
 
 .icon-btn {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,7 +165,7 @@ span.material-symbols-outlined.filled {
 }
 
 .icon-btn span {
-    font-size: 16px;
+    font-size: var(--icon-md);
 }
 
 /* ---------- iframe display ---------- */
@@ -199,12 +207,12 @@ span.material-symbols-outlined.filled {
 /* ---------- track info ---------- */
 
 .track-info {
-    margin-top: 16px;
-    min-height: 46px;
+    margin-top: 24px;
+    min-height: 48px;
 }
 
 .track-title {
-    font-size: 16px;
+    font-size: var(--text-lg);
     font-weight: 700;
     line-height: 1.3;
     overflow: hidden;
@@ -224,7 +232,7 @@ span.material-symbols-outlined.filled {
 
 .track-channel {
     margin-top: 3px;
-    font-size: 13px;
+    font-size: var(--text-md);
     color: var(--text-dim);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -244,15 +252,15 @@ span.material-symbols-outlined.filled {
 .progress-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 16px;
+    gap: 12px;
+    margin-top: 20px;
 }
 
 .time {
     -webkit-user-select: none;
     user-select: none;
     font-family: var(--mono), monospace;
-    font-size: 11px;
+    font-size: var(--text-sm);
     color: var(--text-faint);
     min-width: 34px;
 }
@@ -267,26 +275,26 @@ input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
     flex: 1;
-    height: 3px;
-    border-radius: 3px;
+    height: 6px;
+    border-radius: 5px;
     background: var(--border);
     outline-offset: 4px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: var(--accent);
     box-shadow: 0 0 0 3px rgba(249, 62, 157, 0.15);
-    margin-top: -1.5px;
+    margin-top: -1px;
     cursor: pointer;
 }
 
 input[type="range"]::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border: none;
     border-radius: 50%;
     background: var(--accent);
@@ -294,8 +302,8 @@ input[type="range"]::-moz-range-thumb {
 }
 
 input[type="range"]::-moz-range-track {
-    height: 3px;
-    border-radius: 3px;
+    height: 5px;
+    border-radius: 5px;
     background: var(--border);
 }
 
@@ -306,15 +314,15 @@ input[type="range"]::-moz-range-track {
     align-items: center;
     justify-content: center;
     gap: 14px;
-    margin-top: 20px;
+    margin-top: 24px;
 }
 
 .btn-circle {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     border: 1px solid var(--border);
     color: var(--text-dim);
@@ -328,7 +336,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .btn-circle span {
-    font-size: 16px;
+    font-size: var(--icon-md);
 }
 
 .btn-circle.active {
@@ -337,8 +345,8 @@ input[type="range"]::-moz-range-track {
 }
 
 .btn-circle.primary {
-    width: 54px;
-    height: 54px;
+    width: 64px;
+    height: 64px;
     background: var(--accent);
     border: none;
     color: #171308;
@@ -351,7 +359,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .btn-circle.primary span {
-    font-size: 18px;
+    font-size: var(--icon-lg);
 }
 
 .repeat-badge {
@@ -359,12 +367,12 @@ input[type="range"]::-moz-range-track {
     bottom: -3px;
     right: -3px;
     font-family: var(--mono), monospace;
-    font-size: 8px;
+    font-size: 10px;
     background: var(--accent);
     color: #171308;
     border-radius: 50%;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -376,14 +384,14 @@ input[type="range"]::-moz-range-track {
 .volume-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 22px;
-    padding: 0 4px;
+    gap: 12px;
+    margin-top: 28px;
+    padding: 0 6px;
     color: var(--text-faint);
 }
 
 .volume-row span {
-    font-size: 14px;
+    font-size: var(--icon-sm);
     flex-shrink: 0;
 }
 
@@ -397,7 +405,7 @@ input[type="range"]::-moz-range-track {
     background: var(--panel-raised);
     border: 1px solid var(--border);
     color: var(--text);
-    font-size: 13px;
+    font-size: var(--text-md);
     padding: 9px 16px;
     border-radius: 999px;
     opacity: 0;
@@ -442,8 +450,8 @@ input[type="range"]::-moz-range-track {
 }
 
 .github-link img {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     opacity: .7;
     transition: opacity .15s;
 }
@@ -482,7 +490,7 @@ input[type="range"]::-moz-range-track {
     width: var(--drawer-w);
     height: 100%;
     margin-left: var(--drawer-gap);
-    background: var(--panel-2);
+    background: var(--panel);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
@@ -570,13 +578,13 @@ input[type="range"]::-moz-range-track {
 }
 
 .drawer-header h2 {
-    font-size: 14px;
+    font-size: var(--text-md);
     margin: 0 0 4px;
     font-weight: 700;
 }
 
 .drawer-header p {
-    font-size: 12px;
+    font-size: var(--text-sm);
     color: var(--text-faint);
     margin: 0;
     line-height: 1.5;
@@ -608,7 +616,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .btn-chip span {
-    font-size: 12px;
+    font-size: var(--icon-sm);
 }
 
 .queue-list {
@@ -660,7 +668,7 @@ input[type="range"]::-moz-range-track {
 
 .queue-item .idx {
     font-family: var(--mono), monospace;
-    font-size: 11px;
+    font-size: var(--text-sm);
     color: var(--text-faint);
     width: 18px;
     flex-shrink: 0;
@@ -686,7 +694,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .queue-item .q-title {
-    font-size: 13px;
+    font-size: var(--text-md);
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
@@ -694,7 +702,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .queue-item .q-channel {
-    font-size: 11px;
+    font-size: var(--text-sm);
     color: var(--text-faint);
     white-space: nowrap;
     overflow: hidden;
@@ -704,7 +712,7 @@ input[type="range"]::-moz-range-track {
 .empty-note {
     padding: 24px 18px;
     color: var(--text-faint);
-    font-size: 13px;
+    font-size: var(--text-md);
     text-align: center;
     line-height: 1.6;
 }
@@ -726,14 +734,14 @@ input[type="range"]::-moz-range-track {
 }
 
 .setup-header h1 {
-    font-size: 17px;
+    font-size: var(--text-lg);
     margin: 0 0 6px;
     font-weight: 800;
     letter-spacing: -0.01em;
 }
 
 .setup-header p {
-    font-size: 13px;
+    font-size: var(--text-md);
     color: var(--text-dim);
     line-height: 1.6;
     max-width: 320px;
@@ -748,7 +756,7 @@ input[type="range"]::-moz-range-track {
 
 .field label {
     display: block;
-    font-size: 12px;
+    font-size: var(--text-sm);
     color: var(--text-dim);
     margin-bottom: 6px;
     font-weight: 600;
@@ -760,7 +768,7 @@ input[type="range"]::-moz-range-track {
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: var(--text-sm);
     transition: border-color .15s;
 }
 
@@ -780,7 +788,7 @@ input[type="range"]::-moz-range-track {
     background: var(--accent);
     color: #171308;
     font-weight: 700;
-    font-size: 14px;
+    font-size: var(--text-md);
     padding: 11px;
     border-radius: var(--radius-sm);
     margin-top: 4px;
@@ -799,7 +807,7 @@ input[type="range"]::-moz-range-track {
 
 .error-text {
     color: var(--danger);
-    font-size: 12px;
+    font-size: var(--text-sm);
     margin-top: 8px;
     line-height: 1.5;
 }
@@ -812,7 +820,7 @@ input[type="range"]::-moz-range-track {
     gap: 10px;
     margin: 20px 0 14px;
     color: var(--text-faint);
-    font-size: 11px;
+    font-size: var(--text-sm);
 }
 
 .divider::before, .divider::after {
@@ -852,7 +860,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .saved-item .saved-title {
-    font-size: 13px;
+    font-size: var(--text-md);
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
@@ -861,13 +869,13 @@ input[type="range"]::-moz-range-track {
 
 .saved-item .saved-id {
     font-family: var(--mono), monospace;
-    font-size: 11px;
+    font-size: var(--text-sm);
     color: var(--text-faint);
 }
 
 .saved-item .refresh-btn, .saved-item .remove-btn {
-    width: 22px;
-    height: 22px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -887,7 +895,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .saved-item .refresh-btn span, .saved-item .remove-btn span {
-    font-size: 14px;
+    font-size: var(--icon-sm);
 }
 
 .loading-row {
@@ -896,7 +904,7 @@ input[type="range"]::-moz-range-track {
     justify-content: center;
     gap: 8px;
     padding: 18px 0 4px;
-    font-size: 13px;
+    font-size: var(--text-sm);
     color: var(--text-dim);
 }
 
