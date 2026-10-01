@@ -98,6 +98,22 @@ span.material-symbols-outlined.filled {
     position: relative;
 }
 
+@media (max-width: 600px) and (max-aspect-ratio: 3/4) {
+    body {
+        background: var(--panel);
+    }
+
+    .device-panel {
+        position: fixed;
+        inset: 16px;
+        width: auto;
+        max-width: none;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
 .topbar {
     display: flex;
     align-items: center;
@@ -514,7 +530,7 @@ input[type="range"]::-moz-range-track {
     background: var(--panel-2);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 760px) {
     .drawer-backdrop {
         display: none;
     }
@@ -532,7 +548,7 @@ input[type="range"]::-moz-range-track {
     }
 }
 
-@media (max-width: 899.98px) {
+@media (max-width: 759.98px) {
     .drawer-slot {
         display: contents;
     }
