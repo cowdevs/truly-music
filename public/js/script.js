@@ -475,7 +475,6 @@ function onPlayerStateChange(e) {
         });
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         startProgressTimer();
-        updateWindowTitle();
     } else if (e.data === S.PAUSED) {
         state.isPlaying = false;
         iconPlay.style.display = '';
@@ -607,13 +606,6 @@ function updateNowPlayingUI(track) {
     trackChannelEl.href = track.channelId
         ? 'https://music.youtube.com/channel/' + track.channelId
         : 'https://music.youtube.com/search?q=' + encodeURIComponent(track.channel);
-}
-
-function updateWindowTitle() {
-    if (state.currentIndex >= 0 && state.queue[state.currentIndex]) {
-        var t = state.queue[state.currentIndex];
-        document.title = t.channel + ' - ' + t.title;
-    }
 }
 
 function highlightQueueItem(index) {
