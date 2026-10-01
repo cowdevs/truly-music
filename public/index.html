@@ -29,7 +29,7 @@
 
         <div class="field">
             <label for="playlist-input">Playlist URL or ID</label>
-            <input id="playlist-input" type="text" placeholder="https://music.youtube.com/playlist?list=…"
+            <input id="playlist-input" type="text" placeholder="https://youtube.com/playlist?list=..."
                    autocomplete="off" spellcheck="false">
         </div>
 
@@ -132,6 +132,28 @@
    aria-label="View Truly Music on GitHub" title="View on GitHub">
     <img src="./img/github.svg" alt="" aria-hidden="true">
 </a>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyCIlhOT-1FtO3S5_bVaNBLKklDhM_0-wzw",
+        authDomain: "truly-music.firebaseapp.com",
+        projectId: "truly-music",
+        storageBucket: "truly-music.firebasestorage.app",
+        messagingSenderId: "246677885946",
+        appId: "1:246677885946:web:79ba76bbb354996cc0ca43",
+        measurementId: "G-0KDQ6EVRDD"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+</script>
 
 </body>
 </html>
