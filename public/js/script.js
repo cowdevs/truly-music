@@ -84,7 +84,6 @@ function formatTime(sec) {
     return m + ':' + (s < 10 ? '0' : '') + s;
 }
 
-
 function bestThumbnailUrl(videoId, callback) {
     const THUMBNAIL_SIZES = ['maxresdefault', 'sddefault', 'hqdefault'];
 
@@ -108,6 +107,56 @@ function bestThumbnailUrl(videoId, callback) {
         };
         img.src = url;
     }
+}
+
+function extractGlowColors(imgUrl, callback) {
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function () {
+        try {
+            var size = 12;
+            var canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, size, size);
+            var data = ctx.getImageData(0, 0, size, size).data;
+
+            // Average the top half and bottom half separately so the two
+            // glow blobs get some natural variation, without a full
+            // color-clustering algorithm.
+            var topSum = [0, 0, 0], topCount = 0;
+            var bottomSum = [0, 0, 0], bottomCount = 0;
+            for (var y = 0; y < size; y++) {
+                for (var x = 0; x < size; x++) {
+                    var i = (y * size + x) * 4;
+                    var target = y < size / 2 ? topSum : bottomSum;
+                    target[0] += data[i];
+                    target[1] += data[i + 1];
+                    target[2] += data[i + 2];
+                    if (y < size / 2) topCount++; else bottomCount++;
+                }
+            }
+
+            function avg(sum, count) {
+                return 'rgb(' + Math.round(sum[0] / count) + ', ' + Math.round(sum[1] / count) + ', ' + Math.round(sum[2] / count) + ')';
+            }
+
+            callback(avg(topSum, topCount), avg(bottomSum, bottomCount));
+        } catch (e) {
+            callback(null, null); // tainted canvas or other failure — glow just keeps its last color
+        }
+    };
+    img.onerror = function () {
+        callback(null, null);
+    };
+    img.src = imgUrl;
+}
+
+function updateAmbientGlow(color1, color2) {
+    if (!color1 || !color2) return;
+    document.documentElement.style.setProperty('--glow-color', color1);
+    document.documentElement.style.setProperty('--glow-color-2', color2);
 }
 
 function cleanChannelName(name) {
@@ -525,6 +574,10 @@ function playTrackAt(index) {
         if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
             navigator.mediaSession.metadata.artwork = [{src: src, type: 'image/jpeg'}];
         }
+        extractGlowColors(src, function (c1, c2) {           // add this block
+            if (myToken !== thumbLoadToken) return;
+            updateAmbientGlow(c1, c2);
+        });
     });
 
     curTimeEl.textContent = '0:00';

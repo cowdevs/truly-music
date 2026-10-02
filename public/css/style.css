@@ -86,6 +86,37 @@ span.material-symbols-outlined.filled {
     font-variation-settings: 'FILL' 1, 'wght' 300, 'opsz' 24;
 }
 
+.ambient-glow {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.ambient-glow::before,
+.ambient-glow::after {
+    content: "";
+    position: absolute;
+    width: 60vmax;
+    height: 60vmax;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.35;
+    transition: background 1s ease;
+}
+
+.ambient-glow::before {
+    top: -10vmax;
+    left: -10vmax;
+    background: var(--glow-color, var(--accent));
+}
+
+.ambient-glow::after {
+    bottom: -10vmax;
+    right: -10vmax;
+    background: var(--glow-color-2, var(--accent-dim));
+}
+
 /* ---------- device panel ---------- */
 
 .device-panel {
@@ -99,18 +130,14 @@ span.material-symbols-outlined.filled {
 }
 
 @media (max-width: 600px) and (max-aspect-ratio: 3/4) {
-    body {
-        background: var(--panel);
-    }
-
     .device-panel {
         position: fixed;
-        inset: 16px;
+        top: max(16px, env(safe-area-inset-top, 0px));
+        right: max(16px, env(safe-area-inset-right, 0px));
+        bottom: max(16px, env(safe-area-inset-bottom, 0px));
+        left: max(16px, env(safe-area-inset-left, 0px));
         width: auto;
         max-width: none;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
     }
 }
 
@@ -530,7 +557,7 @@ input[type="range"]::-moz-range-track {
     background: var(--panel-2);
 }
 
-@media (min-width: 760px) {
+@media (min-width: 900px) {
     .drawer-backdrop {
         display: none;
     }
@@ -548,7 +575,7 @@ input[type="range"]::-moz-range-track {
     }
 }
 
-@media (max-width: 759.98px) {
+@media (max-width: 899.98px) {
     .drawer-slot {
         display: contents;
     }
@@ -579,6 +606,10 @@ input[type="range"]::-moz-range-track {
         transition: transform .38s cubic-bezier(0.22, 1, 0.36, 1),
         opacity .28s ease,
         visibility 0s linear 0s;
+    }
+
+    .queue-list {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 }
 

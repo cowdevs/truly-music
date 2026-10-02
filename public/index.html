@@ -5,18 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Truly Music</title>
-    <meta name="description" content="A Youtube music player that shuffles your playlists properly. Free, ad-free, with background play and media controls.">
-    <meta name="keywords" content="YouTube Music player, YouTube playlist player, playlist randomizer, Youtube shuffle, playlist shuffle, music playlist shuffle, ad-free music player, background playback, media controls">
+    <script type="application/ld+json">
+        {
+            "@context" : "https://schema.org",
+            "@type" : "WebSite",
+            "name" : "Truly Music",
+            "url" : "https://truly-music.web.app/"
+        }
+    </script>
+
+    <meta name="description"
+          content="A Youtube music player that shuffles your playlists properly. Free, ad-free, with background play and media controls.">
+    <meta name="keywords"
+          content="YouTube Music player, YouTube playlist player, playlist randomizer, Youtube shuffle, playlist shuffle, music playlist shuffle, ad-free music player, background playback, media controls">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link rel="icon" type="image/png" href="./img/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg" />
-    <link rel="shortcut icon" href="./favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./img/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Truly Music" />
-    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="icon" type="image/png" href="./img/favicon-96x96.png" sizes="96x96"/>
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg"/>
+    <link rel="shortcut icon" href="./favicon.ico"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/apple-touch-icon.png"/>
+    <meta name="apple-mobile-web-app-title" content="Truly Music"/>
+    <link rel="manifest" href="./site.webmanifest"/>
 
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"/>
@@ -26,11 +37,13 @@
     <link rel="stylesheet" href="./css/style.css"/>
     <script src="./js/script.js" defer></script>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="google-site-verification" content="J1GRfjtPmd4p5M9_qjJSy-b-A_yzI99RA1UMsvtf6nQ"/>
 </head>
 <body>
 
-<!-- ============ SETUP SCREEN ============ -->
+<div id="ambient-glow" class="ambient-glow" aria-hidden="true"></div>
+
 <div id="setup-screen" class="device-panel screen">
     <div class="setup-card">
         <div class="setup-header">
@@ -146,12 +159,9 @@
 <audio id="silent-audio" loop></audio>
 
 <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import {getAnalytics} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
 
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
         apiKey: "AIzaSyCIlhOT-1FtO3S5_bVaNBLKklDhM_0-wzw",
         authDomain: "truly-music.firebaseapp.com",
@@ -162,7 +172,6 @@
         measurementId: "G-0KDQ6EVRDD"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
 </script>
