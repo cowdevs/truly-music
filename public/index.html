@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Truly Music</title>
+    <title>Truly Music | YouTube Playlist Shuffler</title>
+    <meta property="og:site_name" content="Truly Music"/>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "WebSite",
             "name": "Truly Music",
-            "url": "https://truly-music.web.app/"
+            "url": "https://truly-music.web.app"
         }
     </script>
 
@@ -172,6 +173,12 @@
 
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.title = "Truly Music";
+    });
 </script>
 
 </body>
