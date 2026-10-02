@@ -1,4 +1,17 @@
+@property --glow-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #f93e9d;
+}
+
+@property --glow-color-2 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #5f173b;
+}
+
 :root {
+    transition: --glow-color 2.2s ease, --glow-color-2 2.2s ease;
     --bg: #0a0a0c;
     --panel: #17171b;
     --panel-2: #1d1d22;
@@ -97,27 +110,32 @@ span.material-symbols-outlined.filled {
 .ambient-glow::after {
     content: "";
     position: absolute;
-    width: 60vmax;
-    height: 60vmax;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.35;
-    transition: background 1s ease;
+    width: 78vmax;
+    height: 58vmax;
+    filter: blur(68px);
+    opacity: 0.17;
+    transition: background 2.2s ease;
 }
 
 .ambient-glow::before {
-    top: -10vmax;
-    left: -10vmax;
-    background: var(--glow-color, var(--accent));
+    top: -22vmax;
+    right: -25vmax;
+    border-radius: 38% 62% 53% 47% / 49% 37% 63% 51%;
+    transform: rotate(-18deg);
+    background:
+        radial-gradient(ellipse 48% 62% at 42% 44%, var(--glow-color, var(--accent)) 0%, transparent 100%),
+        radial-gradient(ellipse 35% 47% at 72% 62%, var(--glow-color, var(--accent)) 0%, transparent 100%);
 }
 
 .ambient-glow::after {
-    bottom: -10vmax;
-    right: -10vmax;
-    background: var(--glow-color-2, var(--accent-dim));
+    bottom: -24vmax;
+    left: -27vmax;
+    border-radius: 61% 39% 44% 56% / 42% 58% 39% 61%;
+    transform: rotate(16deg);
+    background:
+        radial-gradient(ellipse 51% 66% at 55% 52%, var(--glow-color-2, var(--accent-dim)) 0%, transparent 100%),
+        radial-gradient(ellipse 34% 45% at 28% 40%, var(--glow-color-2, var(--accent-dim)) 0%, transparent 100%);
 }
-
-/* ---------- device panel ---------- */
 
 .device-panel {
     width: min(420px, 100%);
@@ -211,8 +229,6 @@ span.material-symbols-outlined.filled {
     font-size: var(--icon-md);
 }
 
-/* ---------- iframe display ---------- */
-
 .display-frame {
     -webkit-user-select: none;
     user-select: none;
@@ -246,8 +262,6 @@ span.material-symbols-outlined.filled {
     height: 100%;
     display: block;
 }
-
-/* ---------- track info ---------- */
 
 .track-info {
     margin-top: 24px;
@@ -289,8 +303,6 @@ span.material-symbols-outlined.filled {
     color: var(--accent);
     text-decoration: underline;
 }
-
-/* ---------- progress ---------- */
 
 .progress-row {
     display: flex;
@@ -349,8 +361,6 @@ input[type="range"]::-moz-range-track {
     border-radius: 5px;
     background: var(--border);
 }
-
-/* ---------- controls ---------- */
 
 .controls-row {
     display: flex;
@@ -422,8 +432,6 @@ input[type="range"]::-moz-range-track {
     line-height: 1;
 }
 
-/* ---------- volume ---------- */
-
 .volume-row {
     display: flex;
     align-items: center;
@@ -437,8 +445,6 @@ input[type="range"]::-moz-range-track {
     font-size: var(--icon-sm);
     flex-shrink: 0;
 }
-
-/* ---------- toast ---------- */
 
 .toast {
     position: fixed;
@@ -502,8 +508,6 @@ input[type="range"]::-moz-range-track {
 .github-link:hover img {
     opacity: 1;
 }
-
-/* ---------- queue drawer ---------- */
 
 .drawer-backdrop {
     position: fixed;
@@ -764,8 +768,6 @@ input[type="range"]::-moz-range-track {
     line-height: 1.6;
 }
 
-/* ---------- setup screen ---------- */
-
 .setup-card {
     padding-top: 4px;
 }
@@ -897,6 +899,9 @@ input[type="range"]::-moz-range-track {
 }
 
 .saved-item .saved-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     flex: 1;
     min-width: 0;
     text-align: left;
@@ -914,10 +919,26 @@ input[type="range"]::-moz-range-track {
     text-overflow: ellipsis;
 }
 
-.saved-item .saved-id {
-    font-family: var(--mono), monospace;
+.saved-item .saved-thumbnail {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    object-fit: cover;
+    border-radius: 5px;
+    background: var(--panel-raised);
+}
+
+.saved-item .saved-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.saved-item .saved-owner {
     font-size: var(--text-sm);
     color: var(--text-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .saved-item .refresh-btn, .saved-item .remove-btn {

@@ -57,9 +57,6 @@ var queueListEl = document.getElementById('queue-list');
 var toastEl = document.getElementById('toast');
 var silentAudio = document.getElementById('silent-audio');
 
-
-// UTILITY FUNCTIONS
-
 function cryptoRandom() {
     var buf = new Uint32Array(1);
     crypto.getRandomValues(buf);
@@ -122,29 +119,59 @@ function extractGlowColors(imgUrl, callback) {
             ctx.drawImage(img, 0, 0, size, size);
             var data = ctx.getImageData(0, 0, size, size).data;
 
-            // Average the top half and bottom half separately so the two
-            // glow blobs get some natural variation, without a full
-            // color-clustering algorithm.
-            var topSum = [0, 0, 0], topCount = 0;
-            var bottomSum = [0, 0, 0], bottomCount = 0;
-            for (var y = 0; y < size; y++) {
-                for (var x = 0; x < size; x++) {
-                    var i = (y * size + x) * 4;
-                    var target = y < size / 2 ? topSum : bottomSum;
-                    target[0] += data[i];
-                    target[1] += data[i + 1];
-                    target[2] += data[i + 2];
-                    if (y < size / 2) topCount++; else bottomCount++;
+            function vibrantHalf(startY, endY) {
+                var bins = [];
+                for (var binIndex = 0; binIndex < 24; binIndex++) {
+                    bins.push({score: 0, saturation: 0, lightness: 0, weight: 0});
                 }
+
+                for (var y = startY; y < endY; y++) {
+                    for (var x = 0; x < size; x++) {
+                        var i = (y * size + x) * 4;
+                        if (data[i + 3] < 32) continue;
+
+                        var red = data[i] / 255;
+                        var green = data[i + 1] / 255;
+                        var blue = data[i + 2] / 255;
+                        var max = Math.max(red, green, blue);
+                        var min = Math.min(red, green, blue);
+                        var delta = max - min;
+                        var lightness = (max + min) / 2;
+                        if (delta === 0 || lightness < 0.06 || lightness > 0.96) continue;
+
+                        var saturation = delta / (1 - Math.abs(2 * lightness - 1));
+                        if (saturation < 0.12) continue;
+
+                        var hue;
+                        if (max === red) hue = 60 * (((green - blue) / delta) % 6);
+                        else if (max === green) hue = 60 * ((blue - red) / delta + 2);
+                        else hue = 60 * ((red - green) / delta + 4);
+                        if (hue < 0) hue += 360;
+
+                        var bin = bins[Math.floor(hue / 15) % 24];
+                        var brightnessPreference = 0.45 + 0.55 * (1 - Math.abs(lightness - 0.55) / 0.55);
+                        bin.score += saturation * saturation * brightnessPreference;
+                        bin.saturation += saturation * brightnessPreference;
+                        bin.lightness += lightness * brightnessPreference;
+                        bin.weight += brightnessPreference;
+                    }
+                }
+
+                var bestIndex = 0;
+                for (var candidateIndex = 1; candidateIndex < bins.length; candidateIndex++) {
+                    if (bins[candidateIndex].score > bins[bestIndex].score) bestIndex = candidateIndex;
+                }
+                var best = bins[bestIndex];
+                if (!best.weight) return 'hsl(330, 82%, 58%)';
+
+                var saturationPct = Math.round(Math.min(100, Math.max(76, (best.saturation / best.weight) * 118 * 100)));
+                var lightnessPct = Math.round(Math.min(64, Math.max(48, (best.lightness / best.weight) * 100)));
+                return 'hsl(' + (bestIndex * 15 + 7.5) + ', ' + saturationPct + '%, ' + lightnessPct + '%)';
             }
 
-            function avg(sum, count) {
-                return 'rgb(' + Math.round(sum[0] / count) + ', ' + Math.round(sum[1] / count) + ', ' + Math.round(sum[2] / count) + ')';
-            }
-
-            callback(avg(topSum, topCount), avg(bottomSum, bottomCount));
+            callback(vibrantHalf(0, size / 2), vibrantHalf(size / 2, size));
         } catch (e) {
-            callback(null, null); // tainted canvas or other failure — glow just keeps its last color
+            callback(null, null);
         }
     };
     img.onerror = function () {
@@ -173,7 +200,7 @@ function extractPlaylistId(raw) {
         var url = new URL(input);
         var listParam = url.searchParams.get('list');
         if (listParam) return listParam;
-    } catch (e) { // invalid URL
+    } catch (e) {
     }
     return null;
 }
@@ -194,9 +221,6 @@ function setSliderFill(input, pct) {
     input.style.background = 'linear-gradient(to right, var(--accent) ' + pct + '%, var(--border) ' + pct + '%)';
 }
 
-
-// LOCAL STORAGE MANAGEMENT
-
 function getCachedPlaylist(playlistId) {
     try {
         var raw = localStorage.getItem('ytsp_cache:' + playlistId);
@@ -214,9 +238,10 @@ function setCachedPlaylist(playlistId, title, tracks) {
             cachedAt: Date.now(),
         }));
     } catch (e) {
-        // localStorage full or unavailable — just skip caching, not fatal.
     }
 }
+
+var playlistInfoRequests = {};
 
 function getSavedPlaylists() {
     try {
@@ -227,7 +252,15 @@ function getSavedPlaylists() {
 }
 
 function savePlaylistToHistory(playlist) {
-    var list = getSavedPlaylists().filter(function (p) {
+    var current = getSavedPlaylists();
+    var previous = current.find(function (p) {
+        return p.id === playlist.id;
+    });
+    if (previous) {
+        playlist.owner = playlist.owner || previous.owner;
+        playlist.thumbnailUrl = playlist.thumbnailUrl || previous.thumbnailUrl;
+    }
+    var list = current.filter(function (p) {
         return p.id !== playlist.id;
     });
     list.unshift(playlist);
@@ -258,14 +291,29 @@ function renderSavedPlaylists() {
 
         var mainBtn = document.createElement('button');
         mainBtn.className = 'saved-main';
+        mainBtn.setAttribute('aria-label', 'Play ' + (p.title || p.id));
+        if (p.thumbnailUrl) {
+            var thumbnail = document.createElement('img');
+            thumbnail.className = 'saved-thumbnail';
+            thumbnail.src = p.thumbnailUrl;
+            thumbnail.alt = '';
+            thumbnail.loading = 'lazy';
+            thumbnail.onerror = function () {
+                thumbnail.classList.add('hidden');
+            };
+            mainBtn.appendChild(thumbnail);
+        }
+        var textWrap = document.createElement('div');
+        textWrap.className = 'saved-text';
         var titleDiv = document.createElement('div');
         titleDiv.className = 'saved-title';
         titleDiv.textContent = p.title || p.id;
-        var idDiv = document.createElement('div');
-        idDiv.className = 'saved-id';
-        idDiv.textContent = p.id;
-        mainBtn.appendChild(titleDiv);
-        mainBtn.appendChild(idDiv);
+        var ownerDiv = document.createElement('div');
+        ownerDiv.className = 'saved-owner';
+        ownerDiv.textContent = p.owner || 'YouTube playlist';
+        textWrap.appendChild(titleDiv);
+        textWrap.appendChild(ownerDiv);
+        mainBtn.appendChild(textWrap);
         mainBtn.addEventListener('click', function () {
             playlistInput.value = p.id;
             beginLoadPlaylist();
@@ -296,10 +344,32 @@ function renderSavedPlaylists() {
         li.appendChild(removeBtn);
         savedList.appendChild(li);
     });
+
+    list.forEach(function (p) {
+        if (!p.owner || !p.thumbnailUrl) fetchSavedPlaylistInfo(p);
+    });
 }
 
-
-// YOUTUBE DATA API STUFF
+function fetchSavedPlaylistInfo(playlist) {
+    if (playlistInfoRequests[playlist.id]) return;
+    playlistInfoRequests[playlist.id] = true;
+    fetchPlaylistInfo(playlist.id).then(function (info) {
+        if (!info) return;
+        var saved = getSavedPlaylists();
+        var item = saved.find(function (p) {
+            return p.id === playlist.id;
+        });
+        if (!item) return;
+        item.title = item.title || info.title;
+        item.owner = item.owner || info.owner;
+        item.thumbnailUrl = item.thumbnailUrl || info.thumbnailUrl;
+        localStorage.setItem('ytsp_playlists', JSON.stringify(saved));
+        renderSavedPlaylists();
+    }).catch(function () {
+    }).then(function () {
+        delete playlistInfoRequests[playlist.id];
+    });
+}
 
 const API_PROXY_BASE = 'https://truly-music-proxy.cowdevs.workers.dev/';
 
@@ -319,10 +389,18 @@ function apiRequest(path, params) {
     });
 }
 
-function fetchPlaylistTitle(playlistId) {
+function fetchPlaylistInfo(playlistId) {
     return apiRequest('playlists', {part: 'snippet', id: playlistId}).then(function (data) {
         var item = data.items && data.items[0];
-        return item ? item.snippet.title : null;
+        if (!item || !item.snippet) return null;
+        var snippet = item.snippet;
+        var thumbnails = snippet.thumbnails || {};
+        var thumbnail = thumbnails.medium || thumbnails.default || thumbnails.high;
+        return {
+            title: snippet.title || null,
+            owner: snippet.channelTitle || null,
+            thumbnailUrl: thumbnail ? thumbnail.url : null,
+        };
     }).catch(function () {
         return null;
     });
@@ -357,9 +435,6 @@ function fetchPlaylistTracks(playlistId) {
     return page(null);
 }
 
-
-// SETUP SCREEN
-
 function friendlyFetchError(err) {
     if (err instanceof TypeError) {
         return 'Couldn\u2019t reach YouTube\u2019s API.';
@@ -388,7 +463,7 @@ function beginLoadPlaylist(forceRefresh) {
 
     var cached = !forceRefresh && getCachedPlaylist(playlistId);
     if (cached) {
-        finishLoadingPlaylist(playlistId, cached.title, cached.tracks);
+        finishLoadingPlaylist(playlistId, cached.title, cached.tracks, cached.owner, cached.thumbnailUrl);
         return;
     }
 
@@ -397,10 +472,11 @@ function beginLoadPlaylist(forceRefresh) {
     setupLoadingText.textContent = 'Fetching tracks…';
 
     Promise.all([
-        fetchPlaylistTitle(playlistId),
+        fetchPlaylistInfo(playlistId),
         fetchPlaylistTracks(playlistId),
     ]).then(function (results) {
-        var title = results[0];
+        var info = results[0] || {};
+        var title = info.title;
         var tracks = results[1];
 
         loadPlaylistBtn.disabled = false;
@@ -412,7 +488,16 @@ function beginLoadPlaylist(forceRefresh) {
         }
 
         setCachedPlaylist(playlistId, title || playlistId, tracks);
-        finishLoadingPlaylist(playlistId, title || playlistId, tracks);
+        var cachedData = getCachedPlaylist(playlistId);
+        if (cachedData) {
+            cachedData.owner = info.owner;
+            cachedData.thumbnailUrl = info.thumbnailUrl;
+            try {
+                localStorage.setItem('ytsp_cache:' + playlistId, JSON.stringify(cachedData));
+            } catch (e) {
+            }
+        }
+        finishLoadingPlaylist(playlistId, title || playlistId, tracks, info.owner, info.thumbnailUrl);
     }).catch(function (err) {
         loadPlaylistBtn.disabled = false;
         setupLoading.classList.add('hidden');
@@ -420,12 +505,12 @@ function beginLoadPlaylist(forceRefresh) {
     });
 }
 
-function finishLoadingPlaylist(playlistId, title, tracks) {
+function finishLoadingPlaylist(playlistId, title, tracks, owner, thumbnailUrl) {
     state.tracks = tracks;
     state.currentPlaylistId = playlistId;
-    savePlaylistToHistory({id: playlistId, title: title});
+    savePlaylistToHistory({id: playlistId, title: title, owner: owner, thumbnailUrl: thumbnailUrl});
 
-    state.queue = shuffle(tracks); // always reshuffled fresh, even from cache
+    state.queue = shuffle(tracks);
     state.currentIndex = -1;
     renderQueue();
     showPlayerScreen();
@@ -443,8 +528,6 @@ function showSetupScreen() {
     if (state.player && state.player.pauseVideo) state.player.pauseVideo();
     closeDrawer();
 }
-
-// YOUTUEB IFRAME API STUFF
 
 function loadYTScript() {
     var tag = document.createElement('script');
@@ -477,8 +560,6 @@ function initPlayer(videoId) {
         playerVars.origin = window.location.origin;
     }
     state.player = new YT.Player('yt-player', {
-        // height: '180',
-        // width: '320',
         videoId: videoId,
         playerVars: playerVars,
         isPlaying: true,
@@ -555,9 +636,6 @@ function onPlayerError(e) {
     playTrackAt(nextIndex);
 }
 
-
-// PLAYBACK CONTROL
-
 function playTrackAt(index) {
     if (index < 0 || index >= state.queue.length) return;
     state.currentIndex = index;
@@ -574,7 +652,7 @@ function playTrackAt(index) {
         if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
             navigator.mediaSession.metadata.artwork = [{src: src, type: 'image/jpeg'}];
         }
-        extractGlowColors(src, function (c1, c2) {           // add this block
+        extractGlowColors(src, function (c1, c2) {
             if (myToken !== thumbLoadToken) return;
             updateAmbientGlow(c1, c2);
         });
@@ -597,7 +675,7 @@ function playNext(auto) {
         if (state.repeatMode === 'all') {
             next = 0;
         } else {
-            return; // reached the end, stop
+            return;
         }
     }
     playTrackAt(next);
@@ -648,9 +726,6 @@ function reshuffleQueue() {
     renderQueue();
     showToast('Queue reshuffled — the rest of the order is fresh.');
 }
-
-
-// UI UPDATES
 
 function updateNowPlayingUI(track) {
     trackTitleEl.textContent = track.title;
@@ -724,9 +799,6 @@ function renderQueue() {
     });
 }
 
-
-// PROGRESS BAR
-
 function startProgressTimer() {
     stopProgressTimer();
     progressTimer = setInterval(updateProgressUI, 500);
@@ -756,13 +828,10 @@ function updateProgressUI() {
                 playbackRate: 1,
                 position: Math.min(cur, dur)
             });
-        } catch (e) { // not supported
+        } catch (e) {
         }
     }
 }
-
-
-// MEDIA SESSION API STUFF
 
 function setupMediaSessionHandlers() {
     if (!('mediaSession' in navigator)) return;
@@ -787,7 +856,7 @@ function setupMediaSessionHandlers() {
         navigator.mediaSession.setActionHandler('stop', function () {
             state.player && state.player.pauseVideo();
         });
-    } catch (e) { // unsupported handlers
+    } catch (e) {
     }
 }
 
@@ -829,9 +898,6 @@ function setupSilentAudio() {
     silentAudio.volume = 0;
 }
 
-
-// QUEUE DRAWER
-
 function openDrawer() {
     queueDrawer.classList.add('open');
     drawerBackdrop.classList.add('open');
@@ -850,9 +916,6 @@ function toggleDrawer() {
     if (queueDrawer.classList.contains('open')) closeDrawer();
     else openDrawer();
 }
-
-
-// EVENT WIRING
 
 loadPlaylistBtn.addEventListener('click', function () {
     beginLoadPlaylist(false);
@@ -920,9 +983,6 @@ document.addEventListener('keydown', function (e) {
         volumeInput.dispatchEvent(new Event('input'));
     }
 });
-
-
-// INIT
 
 function init() {
     setupSilentAudio();
