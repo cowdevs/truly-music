@@ -111,7 +111,7 @@ function extractGlowColors(imgUrl, callback) {
     img.crossOrigin = 'anonymous';
     img.onload = function () {
         try {
-            var size = 12;
+            var size = 24;
             var canvas = document.createElement('canvas');
             canvas.width = size;
             canvas.height = size;
@@ -121,6 +121,8 @@ function extractGlowColors(imgUrl, callback) {
 
             function vibrantHalf(startY, endY) {
                 var bins = [];
+                var totalScore = 0;
+                var coloredPixels = 0;
                 for (var binIndex = 0; binIndex < 24; binIndex++) {
                     bins.push({score: 0, saturation: 0, lightness: 0, weight: 0});
                 }
@@ -137,10 +139,10 @@ function extractGlowColors(imgUrl, callback) {
                         var min = Math.min(red, green, blue);
                         var delta = max - min;
                         var lightness = (max + min) / 2;
-                        if (delta === 0 || lightness < 0.06 || lightness > 0.96) continue;
+                        if (delta === 0 || lightness < 0.08 || lightness > 0.94) continue;
 
                         var saturation = delta / (1 - Math.abs(2 * lightness - 1));
-                        if (saturation < 0.12) continue;
+                        if (saturation < 0.24) continue;
 
                         var hue;
                         if (max === red) hue = 60 * (((green - blue) / delta) % 6);
@@ -150,19 +152,25 @@ function extractGlowColors(imgUrl, callback) {
 
                         var bin = bins[Math.floor(hue / 15) % 24];
                         var brightnessPreference = 0.45 + 0.55 * (1 - Math.abs(lightness - 0.55) / 0.55);
-                        bin.score += saturation * saturation * brightnessPreference;
+                        var pixelScore = saturation * saturation * brightnessPreference;
+                        bin.score += pixelScore;
+                        totalScore += pixelScore;
+                        coloredPixels++;
                         bin.saturation += saturation * brightnessPreference;
                         bin.lightness += lightness * brightnessPreference;
                         bin.weight += brightnessPreference;
                     }
                 }
 
+                var halfPixelCount = size * (endY - startY);
+                if (coloredPixels < halfPixelCount * 0.12) return 'hsl(225, 14%, 54%)';
+
                 var bestIndex = 0;
                 for (var candidateIndex = 1; candidateIndex < bins.length; candidateIndex++) {
                     if (bins[candidateIndex].score > bins[bestIndex].score) bestIndex = candidateIndex;
                 }
                 var best = bins[bestIndex];
-                if (!best.weight) return 'hsl(330, 82%, 58%)';
+                if (!best.weight || best.score / totalScore < 0.18) return 'hsl(225, 14%, 54%)';
 
                 var saturationPct = Math.round(Math.min(100, Math.max(76, (best.saturation / best.weight) * 118 * 100)));
                 var lightnessPct = Math.round(Math.min(64, Math.max(48, (best.lightness / best.weight) * 100)));

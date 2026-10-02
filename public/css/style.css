@@ -31,8 +31,8 @@
     --text-md: 0.875rem;
     --text-lg: 1.125rem;
     --icon-sm: 1rem;
-    --icon-md: 1.25rem;
-    --icon-lg: 1.5rem;
+    --icon-md: 1.5rem;
+    --icon-lg: 2.5rem;
     --radius-lg: 22px;
     --radius-md: 12px;
     --radius-sm: 6px;
@@ -156,6 +156,42 @@ span.material-symbols-outlined.filled {
         left: max(16px, env(safe-area-inset-left, 0px));
         width: auto;
         max-width: none;
+    }
+
+    #setup-screen {
+        margin-block: auto;
+        height: fit-content;
+        max-height: calc(100dvh - max(16px, env(safe-area-inset-top, 0px)) - max(16px, env(safe-area-inset-bottom, 0px)));
+        overflow-y: auto;
+    }
+
+    #player-screen {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #player-screen .topbar,
+    #player-screen .track-info,
+    #player-screen .progress-row,
+    #player-screen .controls-row,
+    #player-screen .volume-row {
+        flex: 0 0 auto;
+    }
+
+    #player-screen .display-area {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+        container-type: size;
+    }
+
+    #player-screen .display-frame {
+        flex: 0 0 auto;
+        width: min(100cqi, 100cqb);
+        height: min(100cqi, 100cqb);
+        aspect-ratio: 1 / 1;
     }
 }
 
@@ -366,7 +402,7 @@ input[type="range"]::-moz-range-track {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 20px;
     margin-top: 24px;
 }
 
@@ -437,6 +473,7 @@ input[type="range"]::-moz-range-track {
     align-items: center;
     gap: 12px;
     margin-top: 28px;
+    margin-bottom: 28px;
     padding: 0 6px;
     color: var(--text-faint);
 }
