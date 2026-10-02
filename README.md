@@ -1,13 +1,12 @@
 # truly music
 
-A browser-based YouTube Music player that shuffles your playlists properly.
+A browser-based YouTube Music player that actually shuffles your playlists properly. Pure, mathematical randomness!
  
-## cool features!
+## other cool features!
 
-- Better shuffle experience
-- Ad-free!!!
-- Full media key support (play/pause, skip)
-- Lightweight and easy to use
-- **Mobile-friendly**, with background play!!!
+- Ad-free
+- Media key support (play/pause, skip)
+- Clean, dynamic UI
+- Mobile-friendly (play in background/locked screen)
 
 *Feel like a Premium user, without paying a dime!*
