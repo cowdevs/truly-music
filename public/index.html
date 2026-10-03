@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title>Truly Music | YouTube Playlist Shuffler</title>
     <meta property="og:site_name" content="Truly Music"/>
@@ -17,8 +17,6 @@
 
     <meta name="description"
           content="A Youtube music player that shuffles your playlists properly. Free, ad-free, with background play and media controls.">
-    <meta name="keywords"
-          content="YouTube Music player, YouTube playlist player, playlist randomizer, Youtube shuffle, playlist shuffle, music playlist shuffle, ad-free music player, background playback, media controls">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +26,7 @@
     <link rel="shortcut icon" href="./favicon.ico"/>
     <link rel="apple-touch-icon" sizes="180x180" href="./img/apple-touch-icon.png"/>
     <meta name="apple-mobile-web-app-title" content="Truly Music"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="./site.webmanifest"/>
 
     <link rel="stylesheet"
@@ -38,7 +37,6 @@
     <link rel="stylesheet" href="./css/style.css"/>
     <script src="./js/script.js" defer></script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="google-site-verification" content="J1GRfjtPmd4p5M9_qjJSy-b-A_yzI99RA1UMsvtf6nQ"/>
 </head>
 <body>
@@ -82,13 +80,13 @@
     <div class="topbar">
         <div class="brand">
             <span id="power-dot" class="power-dot"></span>
-            <span class="wordmark" draggable="false">truly music</span>
+            <button id="setup-btn" class="wordmark" type="button" title="Back to setup">truly music</button>
         </div>
         <div class="topbar-actions">
             <button id="queue-btn" class="icon-btn" title="Open queue" aria-label="Open queue">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <button id="home-btn" class="icon-btn" title="Change playlist" aria-label="Change playlist">
+            <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Settings" aria-haspopup="dialog" aria-expanded="false">
                 <span class="material-symbols-outlined">settings</span>
             </button>
         </div>
@@ -152,11 +150,20 @@
     </div>
 </div>
 
+<div id="settings-backdrop" class="settings-backdrop" aria-hidden="true">
+    <section id="settings-dialog" class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1">
+        <div class="drawer-header">
+            <h2 id="settings-title">Settings</h2>
+            <button id="settings-close-btn" class="icon-btn" type="button" aria-label="Close settings">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <h2>coming soon</h2>
+    </section>
+</div>
+
 <div id="toast" class="toast"></div>
 
-<div id="yt-player-container">
-    <div id="yt-player"></div>
-</div>
 <audio id="silent-audio" loop></audio>
 
 <script type="module">

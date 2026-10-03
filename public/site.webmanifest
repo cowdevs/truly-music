@@ -1,6 +1,6 @@
 {
   "name": "Truly Music",
-  "short_name": "Truly",
+  "short_name": "Truly Music",
   "icons": [
     {
       "src": "./img/web-app-manifest-192x192.png",
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
+  "theme_color": "#f93e9d",
   "background_color": "#ffffff",
   "display": "standalone"
 }

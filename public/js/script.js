@@ -48,11 +48,14 @@ var repeatBtn = document.getElementById('repeat-btn');
 var repeatBadge = document.getElementById('repeat-badge');
 
 var queueBtn = document.getElementById('queue-btn');
-var homeBtn = document.getElementById('home-btn');
+var setupBtn = document.getElementById('setup-btn');
+var settingsBtn = document.getElementById('settings-btn');
 var queueDrawer = document.getElementById('queue-drawer');
 var drawerBackdrop = document.getElementById('drawer-backdrop');
 var drawerCloseBtn = document.getElementById('drawer-close-btn');
 var queueListEl = document.getElementById('queue-list');
+var settingsBackdrop = document.getElementById('settings-backdrop');
+var settingsCloseBtn = document.getElementById('settings-close-btn');
 
 var toastEl = document.getElementById('toast');
 var silentAudio = document.getElementById('silent-audio');
@@ -531,10 +534,22 @@ function showPlayerScreen() {
 }
 
 function showSetupScreen() {
+    pendingTrackId = null;
+    stopProgressTimer();
+    if (state.player) {
+        if (state.player.stopVideo) state.player.stopVideo();
+        else if (state.player.pauseVideo) state.player.pauseVideo();
+    }
+    state.isPlaying = false;
+    iconPlay.style.display = '';
+    iconPause.style.display = 'none';
+    powerDot.classList.remove('playing');
+    silentAudio.pause();
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
     playerScreen.classList.add('hidden');
     setupScreen.classList.remove('hidden');
-    if (state.player && state.player.pauseVideo) state.player.pauseVideo();
     closeDrawer();
+    closeSettings(false);
 }
 
 function loadYTScript() {
@@ -721,7 +736,7 @@ function updateRepeatUI() {
 
 function reshuffleQueue() {
     if (state.queue.length < 2) {
-        showToast('Not enough tracks to reshuffle.');
+        showToast('Not enough tracks!');
         return;
     }
     var current = state.queue[state.currentIndex];
@@ -732,7 +747,7 @@ function reshuffleQueue() {
     state.queue = current ? [current].concat(shuffledRest) : shuffledRest;
     state.currentIndex = current ? 0 : -1;
     renderQueue();
-    showToast('Queue reshuffled — the rest of the order is fresh.');
+    showToast('Queue reshuffled!');
 }
 
 function updateNowPlayingUI(track) {
@@ -925,6 +940,28 @@ function toggleDrawer() {
     else openDrawer();
 }
 
+function openSettings() {
+    closeDrawer();
+    settingsBackdrop.classList.add('open');
+    settingsBackdrop.setAttribute('aria-hidden', 'false');
+    settingsBtn.classList.add('active');
+    settingsBtn.setAttribute('aria-expanded', 'true');
+    settingsCloseBtn.focus();
+}
+
+function closeSettings(restoreFocus) {
+    settingsBackdrop.classList.remove('open');
+    settingsBackdrop.setAttribute('aria-hidden', 'true');
+    settingsBtn.classList.remove('active');
+    settingsBtn.setAttribute('aria-expanded', 'false');
+    if (restoreFocus && !playerScreen.classList.contains('hidden')) settingsBtn.focus();
+}
+
+function toggleSettings() {
+    if (settingsBackdrop.classList.contains('open')) closeSettings(true);
+    else openSettings();
+}
+
 loadPlaylistBtn.addEventListener('click', function () {
     beginLoadPlaylist(false);
 });
@@ -932,7 +969,12 @@ playlistInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') beginLoadPlaylist();
 });
 
-homeBtn.addEventListener('click', showSetupScreen);
+setupBtn.addEventListener('click', showSetupScreen);
+settingsBtn.addEventListener('click', toggleSettings);
+settingsCloseBtn.addEventListener('click', function () { closeSettings(true); });
+settingsBackdrop.addEventListener('click', function (e) {
+    if (e.target === settingsBackdrop) closeSettings(true);
+});
 queueBtn.addEventListener('click', toggleDrawer);
 drawerCloseBtn.addEventListener('click', closeDrawer);
 drawerBackdrop.addEventListener('click', closeDrawer);
@@ -971,6 +1013,12 @@ document.addEventListener('keydown', function (e) {
     var tag = (e.target && e.target.tagName) || '';
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     if (playerScreen.classList.contains('hidden')) return;
+
+    if (e.key === 'Escape') {
+        if (settingsBackdrop.classList.contains('open')) closeSettings(true);
+        else if (queueDrawer.classList.contains('open')) closeDrawer();
+        return;
+    }
 
     if (e.code === 'Space') {
         e.preventDefault();
