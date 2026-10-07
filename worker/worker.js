@@ -1,10 +1,11 @@
 // IF I EVER CHANGE THE ORIGIN REMEMBER TO RUN npx wrangler deploy!!!
+// RUN IN WORKER FOLDER, NOT ROOT
 
 const PRODUCTION_ORIGIN = 'https://truly-music.web.app';
 
 function isAllowedOrigin(origin) {
     if (origin === PRODUCTION_ORIGIN) return true;
-    return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    return /^https?:\/\/(localhost|127\.0\.0\.1|10\.0\.0\.14)(:\d+)?$/.test(origin);
 }
 
 const ALLOWED_PATHS = ['playlists', 'playlistItems'];
@@ -33,7 +34,7 @@ export default {
             if (key.toLowerCase() === 'key') continue;
             target.searchParams.set(key, value);
         }
-        target.searchParams.set('key', env.YOUTUBE_API_KEY);
+        target.searchParams.set('key', env.YOUTUBE_DATA_API_V3_KEY);
 
         const upstream = await fetch(target.toString());
         const body = await upstream.text();
