@@ -7,7 +7,7 @@
     <title>Truly Music | YouTube Playlist Shuffler</title>
     <meta name="description"
           content="A truly random Youtube playlist shuffler! Load and listen to any playlist uninterrupted in a clean, ad-free music player. Play in background on mobile.">
-    <link rel="icon" type="image/png" href="favicon-144x144.png" sizes="144x144"/>
+    <link rel="icon" type="image/png" href="favicon.png" sizes="144x144"/>
     <link rel="canonical" href="https://truly-music.web.app/">
 
     <script type="application/ld+json">
@@ -19,9 +19,9 @@
         }
     </script>
 
-    <link rel="icon" type="image/svg+xml" href="img/favicon.svg"/>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg"/>
     <link rel="shortcut icon" href="favicon.ico"/>
-    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png"/>
     <meta name="apple-mobile-web-app-title" content="Truly Music"/>
     <link rel="manifest" href="manifest.json"/>
 
@@ -29,9 +29,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"/>
+          href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Space+Mono:wght@400;500;600&display=swap"/>
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@24,300,0..1"/>
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL@24,300,0..1"/>
 
     <link rel="stylesheet" href="css/style.css"/>
     <script src="js/script.js" defer></script>
@@ -78,11 +78,10 @@
         </div>
         <div class="topbar-actions">
             <button id="queue-btn" class="icon-btn" title="Open queue" aria-label="Open queue">
-                <span class="material-symbols-outlined">menu</span>
+                <span class="material-symbols-rounded">menu</span>
             </button>
-            <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Settings" aria-haspopup="dialog"
-                    aria-expanded="false">
-                <span class="material-symbols-outlined">settings</span>
+            <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Settings">
+                <span class="material-symbols-rounded">settings</span>
             </button>
         </div>
     </div>
@@ -108,27 +107,21 @@
 
     <div class="controls-row">
         <button id="reshuffle-btn" class="btn-circle" title="Reshuffle queue" aria-label="Reshuffle queue">
-            <span class="material-symbols-outlined filled">shuffle</span>
+            <span class="material-symbols-rounded filled">shuffle</span>
         </button>
         <button id="prev-btn" class="btn-circle" title="Previous" aria-label="Previous track">
-            <span class="material-symbols-outlined filled">skip_previous</span>
+            <span class="material-symbols-rounded filled">skip_previous</span>
         </button>
         <button id="play-pause-btn" class="btn-circle primary" title="Play/Pause" aria-label="Play or pause">
-            <span id="icon-play" class="material-symbols-outlined filled">play_arrow</span>
-            <span id="icon-pause" class="material-symbols-outlined filled" style="display:none;">pause</span>
+            <span id="icon-play" class="material-symbols-rounded filled">play_arrow</span>
+            <span id="icon-pause" class="material-symbols-rounded filled" style="display:none;">pause</span>
         </button>
         <button id="next-btn" class="btn-circle" title="Next" aria-label="Next track">
-            <span class="material-symbols-outlined filled">skip_next</span>
+            <span class="material-symbols-rounded filled">skip_next</span>
         </button>
         <button id="repeat-btn" class="btn-circle" title="Repeat: off" aria-label="Repeat mode">
-            <span class="material-symbols-outlined filled">repeat</span>
-            <span id="repeat-badge" class="material-symbols-outlined filled">counter_1</span>
+            <span id="repeat-icon" class="material-symbols-rounded filled">repeat</span>
         </button>
-    </div>
-
-    <div class="volume-row" style="display: none;">
-        <span class="material-symbols-outlined">volume_up</span>
-        <input id="volume-input" type="range" min="0" max="100" value="80" aria-label="Volume">
     </div>
 
     <div id="drawer-backdrop" class="drawer-backdrop"></div>
@@ -137,10 +130,16 @@
             <div class="drawer-header">
                 <h2>Up next</h2>
                 <button id="drawer-close-btn" class="icon-btn" aria-label="Close queue">
-                    <span class="material-symbols-outlined">close</span>
+                    <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
+            <div class="drawer-search">
+                <span class="material-symbols-rounded">search</span>
+                <input id="queue-search-input" type="text" placeholder="Search playlist..." autocomplete="off"
+                       spellcheck="false" aria-label="Search queue">
+            </div>
             <ul id="queue-list" class="queue-list"></ul>
+            <div id="queue-search-empty" class="empty-note hidden">No tracks match your search.</div>
         </div>
     </div>
 </div>
@@ -151,15 +150,34 @@
         <div class="drawer-header">
             <h2 id="settings-title">Settings</h2>
             <button id="settings-close-btn" class="icon-btn" type="button" aria-label="Close settings">
-                <span class="material-symbols-outlined">close</span>
+                <span class="material-symbols-rounded">close</span>
             </button>
         </div>
-        <h2>coming soon</h2>
+        <div class="settings-content">
+            <div class="settings-option">
+                <label class="settings-option-label" for="volume-input">
+                    <span class="material-symbols-rounded" aria-hidden="true">volume_up</span>
+                    Volume
+                </label>
+                <input id="volume-input" type="range" min="0" max="100" value="80" aria-label="Volume">
+                <output id="volume-value" for="volume-input">80%</output>
+            </div>
+            <div class="settings-option setting-toggle-option">
+                <div class="settings-option-header">
+                    <div class="setting-description">
+                        <span class="material-symbols-rounded" aria-hidden="true">speed</span>
+                        <label for="reduce-effects-input">Reduce Visual Effects</label>
+                    </div>
+                    <input id="reduce-effects-input" class="setting-switch" type="checkbox" role="switch"
+                           aria-label="Reduce Visual Effects">
+                </div>
+            </div>
+        </div>
         <footer class="settings-footer">
             <span>made with ♥ by cowdevs</span>
             <a class="github-link" href="https://github.com/cowdevs/truly-music" target="_blank"
                rel="noopener noreferrer" aria-label="View Truly Music on GitHub" title="View on GitHub">
-                <img src="img/github.svg" alt="" aria-hidden="true">
+                <img src="images/github.svg" alt="" aria-hidden="true">
             </a>
         </footer>
     </section>
@@ -168,6 +186,12 @@
 <div id="toast" class="toast"></div>
 
 <audio id="silent-audio" loop></audio>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.title = "Truly Music";
+    });
+</script>
 
 <script type="module">
     import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";

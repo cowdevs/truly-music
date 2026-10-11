@@ -19,6 +19,7 @@ var progressTimer = null;
 var lastPlayerSignal = 0;
 var watchdogTimer = null;
 var thumbLoadToken = 0;
+var reduceVisualEffects = false;
 
 var setupScreen = document.getElementById('setup-screen');
 var playerScreen = document.getElementById('player-screen');
@@ -39,6 +40,7 @@ var curTimeEl = document.getElementById('cur-time');
 var durTimeEl = document.getElementById('dur-time');
 var seekInput = document.getElementById('seek-input');
 var volumeInput = document.getElementById('volume-input');
+var volumeValue = document.getElementById('volume-value');
 
 var reshuffleBtn = document.getElementById('reshuffle-btn');
 var prevBtn = document.getElementById('prev-btn');
@@ -47,7 +49,7 @@ var playPauseBtn = document.getElementById('play-pause-btn');
 var iconPlay = document.getElementById('icon-play');
 var iconPause = document.getElementById('icon-pause');
 var repeatBtn = document.getElementById('repeat-btn');
-var repeatBadge = document.getElementById('repeat-badge');
+var repeatIcon = document.getElementById('repeat-icon');
 
 var queueBtn = document.getElementById('queue-btn');
 var setupBtn = document.getElementById('setup-btn');
@@ -56,8 +58,11 @@ var queueDrawer = document.getElementById('queue-drawer');
 var drawerBackdrop = document.getElementById('drawer-backdrop');
 var drawerCloseBtn = document.getElementById('drawer-close-btn');
 var queueListEl = document.getElementById('queue-list');
+var queueSearchInput = document.getElementById('queue-search-input');
+var queueSearchEmpty = document.getElementById('queue-search-empty');
 var settingsBackdrop = document.getElementById('settings-backdrop');
 var settingsCloseBtn = document.getElementById('settings-close-btn');
+var reduceEffectsInput = document.getElementById('reduce-effects-input');
 
 var toastEl = document.getElementById('toast');
 var silentAudio = document.getElementById('silent-audio');
@@ -194,9 +199,16 @@ function extractGlowColors(imgUrl, callback) {
 }
 
 function updateAmbientGlow(color1, color2) {
-    if (!color1 || !color2) return;
+    if (reduceVisualEffects || !color1 || !color2) return;
     document.documentElement.style.setProperty('--glow-color', color1);
     document.documentElement.style.setProperty('--glow-color-2', color2);
+}
+
+function setReduceVisualEffects(enabled, persist) {
+    reduceVisualEffects = enabled;
+    document.documentElement.classList.toggle('reduce-visual-effects', enabled);
+    reduceEffectsInput.checked = enabled;
+    if (persist) localStorage.setItem('ytsp_reduce_visual_effects', enabled ? '1' : '0');
 }
 
 function cleanChannelName(name) {
@@ -336,7 +348,7 @@ function renderSavedPlaylists() {
         refreshBtn.className = 'refresh-btn';
         refreshBtn.title = 'Refresh from YouTube';
         refreshBtn.setAttribute('aria-label', 'Refresh this playlist from YouTube');
-        refreshBtn.innerHTML = '<span class="material-symbols-outlined small">refresh</span>';
+        refreshBtn.innerHTML = '<span class="material-symbols-rounded small">refresh</span>';
         refreshBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             playlistInput.value = p.id;
@@ -346,7 +358,7 @@ function renderSavedPlaylists() {
         var removeBtn = document.createElement('button');
         removeBtn.className = 'remove-btn';
         removeBtn.setAttribute('aria-label', 'Remove saved playlist');
-        removeBtn.innerHTML = '<span class="material-symbols-outlined small">delete</span>';
+        removeBtn.innerHTML = '<span class="material-symbols-rounded small">delete</span>';
         removeBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             removeSavedPlaylist(p.id);
@@ -585,9 +597,12 @@ function initPlayer(videoId) {
         hl: 'en'
     };
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        console.log("reached here");
         playerVars.origin = window.location.origin;
     }
     state.player = new YT.Player('yt-player', {
+        height: '360',
+        width: '640',
         videoId: videoId,
         playerVars: playerVars,
         isPlaying: true,
@@ -681,6 +696,7 @@ function playTrackAt(index) {
         if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
             navigator.mediaSession.metadata.artwork = [{src: src, type: 'image/jpeg'}];
         }
+        if (reduceVisualEffects) return;
         extractGlowColors(src, function (c1, c2) {
             if (myToken !== thumbLoadToken) return;
             updateAmbientGlow(c1, c2);
@@ -736,11 +752,7 @@ function cycleRepeatMode() {
 
 function updateRepeatUI() {
     repeatBtn.classList.toggle('active', state.repeatMode !== 'off');
-    if (state.repeatMode !== 'one') {
-        repeatBadge.style.display = 'none';
-    } else {
-        repeatBadge.style.display = 'flex';
-    }
+    repeatIcon.textContent = state.repeatMode === 'one' ? 'repeat_one' : 'repeat';
     repeatBtn.title = 'Repeat: ' + state.repeatMode;
 }
 
@@ -830,6 +842,28 @@ function renderQueue() {
 
         queueListEl.appendChild(li);
     });
+
+    filterQueueList(queueSearchInput.value);
+}
+
+function filterQueueList(query) {
+    var q = normalizeQueueSearchText(query);
+    var items = queueListEl.querySelectorAll('.queue-item');
+    var anyVisible = false;
+    items.forEach(function (el) {
+        var title = (el.querySelector('.q-title') || {}).textContent || '';
+        var channel = (el.querySelector('.q-channel') || {}).textContent || '';
+        var matches = !q
+            || normalizeQueueSearchText(title).indexOf(q) !== -1
+            || normalizeQueueSearchText(channel).indexOf(q) !== -1;
+        el.classList.toggle('filtered-out', !matches);
+        if (matches) anyVisible = true;
+    });
+    queueSearchEmpty.classList.toggle('hidden', anyVisible || !q);
+}
+
+function normalizeQueueSearchText(value) {
+    return value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 function startProgressTimer() {
@@ -943,6 +977,8 @@ function closeDrawer() {
     drawerBackdrop.classList.remove('open');
     queueBtn.classList.remove('active');
     playerScreen.classList.remove('queue-open');
+    queueSearchInput.value = '';
+    filterQueueList('');
 }
 
 function toggleDrawer() {
@@ -981,11 +1017,21 @@ playlistInput.addEventListener('keydown', function (e) {
 
 setupBtn.addEventListener('click', showSetupScreen);
 settingsBtn.addEventListener('click', toggleSettings);
-settingsCloseBtn.addEventListener('click', function () { closeSettings(true); });
+settingsCloseBtn.addEventListener('click', function () {
+    closeSettings(true);
+});
 settingsBackdrop.addEventListener('click', function (e) {
     if (e.target === settingsBackdrop) closeSettings(true);
 });
+reduceEffectsInput.addEventListener('change', function () {
+    setReduceVisualEffects(reduceEffectsInput.checked, true);
+});
+
 queueBtn.addEventListener('click', toggleDrawer);
+queueSearchInput.addEventListener('input', function () {
+    filterQueueList(this.value);
+});
+
 drawerCloseBtn.addEventListener('click', closeDrawer);
 drawerBackdrop.addEventListener('click', closeDrawer);
 reshuffleBtn.addEventListener('click', reshuffleQueue);
@@ -1015,20 +1061,21 @@ seekInput.addEventListener('change', function () {
 
 volumeInput.addEventListener('input', function () {
     setSliderFill(volumeInput, volumeInput.value);
+    volumeValue.textContent = volumeInput.value + '%';
     if (state.player && state.player.setVolume) state.player.setVolume(parseInt(volumeInput.value, 10));
     localStorage.setItem('ytsp_volume', volumeInput.value);
 });
 
 document.addEventListener('keydown', function (e) {
     var tag = (e.target && e.target.tagName) || '';
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-    if (playerScreen.classList.contains('hidden')) return;
-
     if (e.key === 'Escape') {
         if (settingsBackdrop.classList.contains('open')) closeSettings(true);
         else if (queueDrawer.classList.contains('open')) closeDrawer();
         return;
     }
+
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (playerScreen.classList.contains('hidden')) return;
 
     if (e.code === 'Space') {
         e.preventDefault();
@@ -1051,12 +1098,14 @@ document.addEventListener('keydown', function (e) {
 });
 
 function init() {
+    setReduceVisualEffects(localStorage.getItem('ytsp_reduce_visual_effects') === '1', false);
     setupSilentAudio();
     loadYTScript();
 
     var savedVolume = localStorage.getItem('ytsp_volume');
     if (savedVolume != null) volumeInput.value = savedVolume;
     setSliderFill(volumeInput, volumeInput.value);
+    volumeValue.textContent = volumeInput.value + '%';
     setSliderFill(seekInput, 0);
     updateRepeatUI();
     renderSavedPlaylists();
